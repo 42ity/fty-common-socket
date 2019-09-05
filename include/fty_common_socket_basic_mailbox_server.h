@@ -59,8 +59,10 @@ namespace fty
         std::string m_path;
         size_t m_maxClient;
         int m_serverSocket;
-        
         bool m_stopRequested = false;
+        bool m_running = false;
+        
+        int m_pipe[2];
     };
     
 } //namespace fty
