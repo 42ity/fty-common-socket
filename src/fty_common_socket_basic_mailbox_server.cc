@@ -97,9 +97,6 @@ namespace fty
         {
             throw std::runtime_error("Impossible to change the rights of the Unix socket "+m_path+": " + std::string(strerror(errno)));
         }
-        }
-
-
 
         //Prepare for accepting connections
 
