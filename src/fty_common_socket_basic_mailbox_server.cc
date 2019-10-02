@@ -88,6 +88,17 @@ namespace fty
         {
             throw std::runtime_error("Impossible to bind the Unix socket");
         }
+         
+        //change the right of the socket
+        ret = chmod(m_path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO );
+
+        if(ret == -1)
+        {
+            throw std::runtime_error("Impossible to change the rights of the Unix socket "+m_path+": " + std::string(strerror(errno)));
+        }
+        }
+
+
 
         //Prepare for accepting connections
 
