@@ -10,14 +10,13 @@ AM_CXXFLAGS = \
 
 AM_CPPFLAGS = \
     ${cxxtools_CFLAGS} \
-    ${log4cplus_CFLAGS} \
     ${fty_common_logging_CFLAGS} \
     ${fty_common_CFLAGS} \
     ${openssl_CFLAGS} \
     -D__STDC_FORMAT_MACROS \
     -I$(srcdir)/include
 
-project_libs = ${cxxtools_LIBS} ${log4cplus_LIBS} ${fty_common_logging_LIBS} ${fty_common_LIBS} ${openssl_LIBS}
+project_libs = ${cxxtools_LIBS} ${fty_common_logging_LIBS} ${fty_common_LIBS} ${openssl_LIBS}
 
 SUBDIRS = doc
 SUBDIRS += include
@@ -39,7 +38,6 @@ DISTCLEANFILES =
 if ENABLE_DIST_CMAKEFILES
 EXTRA_DIST += \
     Findcxxtools.cmake \
-    Findlog4cplus.cmake \
     Findfty_common_logging.cmake \
     Findfty_common.cmake \
     Findopenssl.cmake \
