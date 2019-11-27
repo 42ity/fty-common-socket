@@ -48,7 +48,6 @@ BuildRequires:  pkgconfig
 BuildRequires:  xmlto
 BuildRequires:  gcc-c++
 BuildRequires:  cxxtools-devel
-BuildRequires:  log4cplus-devel
 BuildRequires:  fty-common-logging-devel
 BuildRequires:  fty-common-devel
 BuildRequires:  openssl-devel
@@ -76,7 +75,6 @@ Summary:        provides common unix socket tools for agents
 Group:          System/Libraries
 Requires:       libfty_common_socket1 = %{version}
 Requires:       cxxtools-devel
-Requires:       log4cplus-devel
 Requires:       fty-common-logging-devel
 Requires:       fty-common-devel
 Requires:       openssl-devel

@@ -7,7 +7,6 @@ Architecture: any
 Build-Depends: debhelper (>= 9),
     pkg-config,
     libcxxtools-dev,
-    liblog4cplus-dev,
     libfty-common-logging-dev,
     libfty-common-dev,
     libssl-dev,
