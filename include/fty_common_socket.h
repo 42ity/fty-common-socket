@@ -1,7 +1,7 @@
 /*  =========================================================================
     fty-common-socket - Provides common unix socket tools for agents
 
-    Copyright (C) 2014 - 2019 Eaton
+    Copyright (C) 2014 - 2020 Eaton
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by

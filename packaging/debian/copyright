@@ -4,7 +4,7 @@ Upstream-Name: fty-common-socket
 Files: *
 Copyright: 2015- fty-common-socket Developers <eatonipcopensource@eaton.com>
 License: fty-common-socket_license
- Copyright (C) 2014 - 2019 Eaton
+ Copyright (C) 2014 - 2020 Eaton
  .
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU Lesser General Public License as published by

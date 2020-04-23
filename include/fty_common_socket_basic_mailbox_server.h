@@ -1,7 +1,7 @@
 /*  =========================================================================
     fty_common_socket_basic_mailbox_server - Basic synchronous mailbox server using unix socket
 
-    Copyright (C) 2014 - 2019 Eaton
+    Copyright (C) 2014 - 2020 Eaton
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
