@@ -26,92 +26,83 @@
 @end
 */
 
-#include <stdexcept>
-
 #include "fty_common_socket_sync_client.h"
 #include "fty_common_socket_helpers.h"
-
 #include <errno.h>
+#include <stdexcept>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 
-namespace fty
+namespace fty {
+SocketSyncClient::SocketSyncClient(const std::string& path)
+    : m_path(path)
 {
-    SocketSyncClient::SocketSyncClient(const std::string & path)
-    :   m_path(path)
-    {
-    }
-    
-       
-    std::vector<std::string> SocketSyncClient::syncRequestWithReply(const std::vector<std::string> & payload)
-    {
-        int data_socket = -1;
-        
-        try
-        {
-            struct sockaddr_un addr;
-            int ret;
+}
 
-            /* Create local socket. */
-            data_socket = socket(AF_UNIX, SOCK_STREAM, 0);
-            if (data_socket == -1)
-            {
-                throw std::runtime_error("Impossible to connect to server");
-            }
 
-            memset(&addr, 0, sizeof(struct sockaddr_un));
+std::vector<std::string> SocketSyncClient::syncRequestWithReply(const std::vector<std::string>& payload)
+{
+    int data_socket = -1;
 
-            /* Connect socket to socket address */
+    try {
+        struct sockaddr_un addr;
+        int                ret;
 
-            addr.sun_family = AF_UNIX;
-            strncpy(addr.sun_path, m_path.c_str(), sizeof(addr.sun_path) - 1);
+        /* Create local socket. */
+        data_socket = socket(AF_UNIX, SOCK_STREAM, 0);
+        if (data_socket == -1) {
+            throw std::runtime_error("Impossible to connect to server");
+        }
 
-            ret = connect (data_socket, (const struct sockaddr *) &addr, sizeof(struct sockaddr_un));
-            if (ret == -1)
-            {
-                throw std::runtime_error("Impossible to connect to server");
-            }
+        memset(&addr, 0, sizeof(struct sockaddr_un));
 
-            sendFrames(data_socket, payload);
+        /* Connect socket to socket address */
 
-            std::vector<std::string> data = recvFrames(data_socket);
-            
+        addr.sun_family = AF_UNIX;
+        strncpy(addr.sun_path, m_path.c_str(), sizeof(addr.sun_path) - 1);
+
+        ret = connect(data_socket, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(struct sockaddr_un));
+        if (ret == -1) {
+            throw std::runtime_error("Impossible to connect to server");
+        }
+
+        sendFrames(data_socket, payload);
+
+        std::vector<std::string> data = recvFrames(data_socket);
+
+        close(data_socket);
+
+        return data;
+    } catch (std::exception&) {
+        if (data_socket != -1) {
             close(data_socket);
-
-            return data;
         }
-        catch(std::exception &)
-        {
-            if(data_socket != -1)
-            {
-                close(data_socket);
-            }
-            
-            throw;
-        }
-        
-     }
-        
-} //namespace fty
 
+        throw;
+    }
+}
+
+} // namespace fty
+
+#if 0
 //  --------------------------------------------------------------------------
 //  Self test of this class
 #define SELFTEST_DIR_RO "src/selftest-ro"
 #define SELFTEST_DIR_RW "src/selftest-rw"
 
-void
-fty_common_socket_sync_client_test (bool verbose)
+void fty_common_socket_sync_client_test(bool verbose)
 {
-    printf (" * fty_common_socket_sync_client: ");
+    printf(" * fty_common_socket_sync_client: ");
 
     //  @selftest
     //  Simple create/destroy test
-    fty::SocketSyncClient(std::string(SELFTEST_DIR_RW"/test.socket"));
+    fty::SocketSyncClient(std::string(SELFTEST_DIR_RW "/test.socket"));
     //  @end
-    printf ("OK\n");
+    printf("OK\n");
 }
+#endif

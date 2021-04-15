@@ -27,92 +27,79 @@
 */
 
 #include "fty_common_socket_helpers.h"
-
-
-#include <unistd.h>
-#include <stdexcept>
-
 #include <iostream>
+#include <stdexcept>
+#include <unistd.h>
 
-namespace fty
+namespace fty {
+
+Payload recvFrames(int socket)
 {
+    // format => [ Number of frames ], [ <size of frame 1> <data> ], ... [ <size of frame N> <data> ]
 
-    Payload recvFrames(int socket)
-    {
-        //format => [ Number of frames ], [ <size of frame 1> <data> ], ... [ <size of frame N> <data> ]
+    // get the number of frames
+    uint32_t numberOfFrame = 0;
 
-        //get the number of frames
-        uint32_t numberOfFrame = 0;
 
-        
-        if(read(socket, &numberOfFrame, sizeof(uint32_t)) != sizeof(uint32_t))
-        {
-            throw std::runtime_error("Error while reading number of frame");
-        }
-        
-
-        //Get frames
-        Payload frames;
-
-        for( uint32_t index = 0; index < numberOfFrame; index++)
-        {
-            //get the size of the frame
-            uint32_t frameSize = 0;
-            
-            
-            if(read(socket, &frameSize, sizeof(uint32_t)) != sizeof(uint32_t))
-            {
-                throw std::runtime_error("Error while reading size of frame");
-            }
-            
-
-            if(frameSize == 0)
-            {
-                throw std::runtime_error("Read error: Empty frame");
-            }
-
-            //get the payload of the frame
-            std::vector<char> buffer;
-            buffer.reserve(frameSize+1);
-            buffer[frameSize] = 0;
-
-            if(read(socket, &buffer[0], frameSize) != frameSize)
-            {
-                throw std::runtime_error("Read error while getting payload of frame");
-            }
-            
-            std::string str(&buffer[0]);
-            
-            frames.push_back(str);
-        }
-        
-        return frames;
+    if (read(socket, &numberOfFrame, sizeof(uint32_t)) != sizeof(uint32_t)) {
+        throw std::runtime_error("Error while reading number of frame");
     }
-    
-    void sendFrames(int socket, const Payload & payload)
-    {
-        //Send number of frame
-        uint32_t numberOfFrame = payload.size();
-        
-        if ( write(socket, &numberOfFrame, sizeof(uint32_t)) != sizeof(uint32_t) )
-        {
-            throw std::runtime_error("Error while writing number of frame");
+
+
+    // Get frames
+    Payload frames;
+
+    for (uint32_t index = 0; index < numberOfFrame; index++) {
+        // get the size of the frame
+        uint32_t frameSize = 0;
+
+
+        if (read(socket, &frameSize, sizeof(uint32_t)) != sizeof(uint32_t)) {
+            throw std::runtime_error("Error while reading size of frame");
         }
-        
-        for(const std::string & frame : payload)
-        {
-            uint32_t frameSize = frame.length() + 1;
-            
-            if ( write(socket, &frameSize, sizeof(uint32_t)) != sizeof(uint32_t) )
-            {
-                throw std::runtime_error("Error while writing size of frame");
-            }
-            
-            if ( write(socket, frame.data(), frameSize) != frameSize )
-            {
-                throw std::runtime_error("Error while writing payload");
-            }    
+
+
+        if (frameSize == 0) {
+            throw std::runtime_error("Read error: Empty frame");
+        }
+
+        // get the payload of the frame
+        std::vector<char> buffer;
+        buffer.reserve(frameSize + 1);
+        buffer[frameSize] = 0;
+
+        if (read(socket, &buffer[0], frameSize) != frameSize) {
+            throw std::runtime_error("Read error while getting payload of frame");
+        }
+
+        std::string str(&buffer[0]);
+
+        frames.push_back(str);
+    }
+
+    return frames;
+}
+
+void sendFrames(int socket, const Payload& payload)
+{
+    // Send number of frame
+    size_t numberOfFrame = payload.size();
+
+    if (write(socket, &numberOfFrame, sizeof(uint32_t)) != sizeof(uint32_t)) {
+        throw std::runtime_error("Error while writing number of frame");
+    }
+
+    for (const std::string& frame : payload) {
+        size_t frameSize = frame.length() + 1;
+
+        if (write(socket, &frameSize, sizeof(uint32_t)) != sizeof(uint32_t)) {
+            throw std::runtime_error("Error while writing size of frame");
+        }
+
+        if (write(socket, frame.data(), frameSize) != ssize_t(frameSize)) {
+            throw std::runtime_error("Error while writing payload");
         }
     }
-    
-} //namespace fty
+}
+
+} // namespace fty

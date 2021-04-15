@@ -19,20 +19,16 @@
     =========================================================================
 */
 
-#ifndef FTY_COMMON_SOCKET_HELPERS_H_INCLUDED
-#define FTY_COMMON_SOCKET_HELPERS_H_INCLUDED
+#pragma once
 
 #include <string>
 #include <vector>
 
-namespace fty
-{
-    using Payload = std::vector<std::string>;
-        
-    //functions
-    Payload recvFrames(int socket);
-    void sendFrames(int socket, const Payload & payload);
-    
-} //namespace fty
+namespace fty {
+using Payload = std::vector<std::string>;
 
-#endif
+// functions
+Payload recvFrames(int socket);
+void    sendFrames(int socket, const Payload& payload);
+
+} // namespace fty

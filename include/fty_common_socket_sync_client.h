@@ -19,40 +19,26 @@
     =========================================================================
 */
 
-#ifndef FTY_COMMON_SOCKET_SYNC_CLIENT_H_INCLUDED
-#define FTY_COMMON_SOCKET_SYNC_CLIENT_H_INCLUDED
+#pragma once
 
 #include "fty_common_client.h"
-
 #include <string>
 #include <vector>
-#include <functional>
 
 
-namespace fty
+namespace fty {
+// This class is thread safe.
+
+class SocketSyncClient : public SyncClient // Implement interface for synchronous client
 {
-    // This class is thread safe.
-    
-    class SocketSyncClient
-        : public SyncClient //Implement interface for synchronous client
-    {    
-    public:
-        explicit SocketSyncClient(const std::string & path);
-        
-        //methods
-        std::vector<std::string> syncRequestWithReply(const std::vector<std::string> & payload) override;
-        
-    private:
-        //attributs
-        std::string m_path;        
-    };
-    
-} //namespace fty
+public:
+    explicit SocketSyncClient(const std::string& path);
 
-//  @interface
-//  Self test of this class
-void
-    fty_common_socket_sync_client_test (bool verbose);
-//  @end
+    // methods
+    std::vector<std::string> syncRequestWithReply(const std::vector<std::string>& payload) override;
 
-#endif
+private:
+    std::string m_path;
+};
+
+} // namespace fty
