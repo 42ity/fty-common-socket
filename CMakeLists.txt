@@ -36,6 +36,8 @@ etn_test_target(${PROJECT_NAME}
         test/fty_common_socket_basic_mailbox_server.cc
         test/fty_common_socket_sync_client.cc
         test/main.cpp
+    USES
+        pthread
     SUBDIR
         test
 )
