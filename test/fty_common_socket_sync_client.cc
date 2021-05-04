@@ -1,5 +1,5 @@
 /*  =========================================================================
-    fty_common_socket_basic_mailbox_server - Basic synchronous mailbox server using unix socket
+    fty_common_socket_sync_client - Simple client for synchronous request using unix socket
 
     Copyright (C) 2014 - 2020 Eaton
 
@@ -19,43 +19,10 @@
     =========================================================================
 */
 
-#pragma once
+#include "fty_common_socket_sync_client.h"
+#include <catch2/catch.hpp>
 
-#include "fty_common_sync_server.h"
-#include <string>
-
-namespace fty {
-
-/**
- * \brief Handler for basic mailbox server using object
- *        implementing fty::SyncServer interface.
- *
- * The server receive request using mailbox with the following protocol
- *
- * \see fty_common_socket_sync_client.h
- */
-
-class SocketBasicServer
+TEST_CASE("Sync client")
 {
-public:
-    explicit SocketBasicServer(fty::SyncServer& server, const std::string& path, size_t maxClient = 30);
-
-    ~SocketBasicServer();
-
-    void init();
-    void run();
-    void requestStop();
-
-private:
-    // attributs
-    fty::SyncServer& m_server;
-    std::string      m_path;
-    size_t           m_maxClient;
-    int              m_serverSocket;
-    bool             m_stopRequested = false;
-    bool             m_running       = false;
-
-    int m_pipe[2];
-};
-
-} // namespace fty
+    fty::SocketSyncClient("/tmp/test.socket");
+}
