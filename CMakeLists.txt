@@ -24,7 +24,6 @@ etn_target(shared ${PROJECT_NAME}
         src/fty_common_socket_helpers.h
         src/fty_common_socket_sync_client.cc
     USES
-        cxxtools
         fty_common
         fty_common_logging
 )
