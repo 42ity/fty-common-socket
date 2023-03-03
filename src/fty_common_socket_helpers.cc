@@ -39,42 +39,42 @@ Payload recvFrames(int socket)
 
     // get the number of frames
     uint32_t numberOfFrame = 0;
-
-
     if (read(socket, &numberOfFrame, sizeof(uint32_t)) != sizeof(uint32_t)) {
         throw std::runtime_error("Error while reading number of frame");
     }
 
-
     // Get frames
     Payload frames;
+    char localBuffer[256];
 
     for (uint32_t index = 0; index < numberOfFrame; index++) {
         // get the size of the frame
         uint32_t frameSize = 0;
-
-
         if (read(socket, &frameSize, sizeof(uint32_t)) != sizeof(uint32_t)) {
             throw std::runtime_error("Error while reading size of frame");
         }
-
-
         if (frameSize == 0) {
             throw std::runtime_error("Read error: Empty frame");
         }
 
         // get the payload of the frame
-        std::vector<char> buffer;
-        buffer.reserve(frameSize + 1);
-        buffer[frameSize] = 0;
-
-        if (read(socket, &buffer[0], frameSize) != frameSize) {
+        char* buffer = ((frameSize + 1) < sizeof(localBuffer))
+            ? localBuffer
+            : static_cast<char*>(malloc(frameSize + 1));
+        if (!buffer) {
+            throw std::runtime_error("Buffer allocation failed (" + std::to_string(frameSize + 1) + " bytes)");
+        }
+        if (read(socket, buffer, frameSize) != frameSize) {
+            if (buffer != localBuffer)
+                { free(buffer); }
             throw std::runtime_error("Read error while getting payload of frame");
         }
 
-        std::string str(&buffer[0]);
+        buffer[frameSize] = 0;
+        frames.push_back(std::string(buffer));
 
-        frames.push_back(str);
+        if (buffer != localBuffer)
+            { free(buffer); }
     }
 
     return frames;
