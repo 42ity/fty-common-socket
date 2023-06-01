@@ -20,7 +20,7 @@
 Source:         fty-common-socket
 Section:        net
 Priority:       optional
-Maintainer:     fty-common-socket Developers <eatonipcopensource@eaton.com>
+Maintainer:     fty-common-socket Developers <opensource@eaton.com>
 Standards-Version: 4.0.1.0
 Build-Depends: debhelper (>= 9),
     cmake (>=3.0),
