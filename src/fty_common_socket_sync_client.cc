@@ -39,26 +39,24 @@
 #include <unistd.h>
 
 namespace fty {
+
 SocketSyncClient::SocketSyncClient(const std::string& path)
     : m_path(path)
 {
 }
-
 
 std::vector<std::string> SocketSyncClient::syncRequestWithReply(const std::vector<std::string>& payload)
 {
     int data_socket = -1;
 
     try {
-        struct sockaddr_un addr;
-        int                ret;
-
         /* Create local socket. */
         data_socket = socket(AF_UNIX, SOCK_STREAM, 0);
         if (data_socket == -1) {
             throw std::runtime_error("Impossible to connect to server");
         }
 
+        struct sockaddr_un addr;
         memset(&addr, 0, sizeof(struct sockaddr_un));
 
         /* Connect socket to socket address */
@@ -66,7 +64,7 @@ std::vector<std::string> SocketSyncClient::syncRequestWithReply(const std::vecto
         addr.sun_family = AF_UNIX;
         strncpy(addr.sun_path, m_path.c_str(), sizeof(addr.sun_path) - 1);
 
-        ret = connect(data_socket, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(struct sockaddr_un));
+        int ret = connect(data_socket, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(struct sockaddr_un));
         if (ret == -1) {
             throw std::runtime_error("Impossible to connect to server");
         }
@@ -78,7 +76,7 @@ std::vector<std::string> SocketSyncClient::syncRequestWithReply(const std::vecto
         close(data_socket);
 
         return data;
-    } catch (std::exception&) {
+    } catch (const std::exception&) {
         if (data_socket != -1) {
             close(data_socket);
         }
@@ -88,21 +86,3 @@ std::vector<std::string> SocketSyncClient::syncRequestWithReply(const std::vecto
 }
 
 } // namespace fty
-
-#if 0
-//  --------------------------------------------------------------------------
-//  Self test of this class
-#define SELFTEST_DIR_RO "src/selftest-ro"
-#define SELFTEST_DIR_RW "src/selftest-rw"
-
-void fty_common_socket_sync_client_test(bool verbose)
-{
-    printf(" * fty_common_socket_sync_client: ");
-
-    //  @selftest
-    //  Simple create/destroy test
-    fty::SocketSyncClient(std::string(SELFTEST_DIR_RW "/test.socket"));
-    //  @end
-    printf("OK\n");
-}
-#endif

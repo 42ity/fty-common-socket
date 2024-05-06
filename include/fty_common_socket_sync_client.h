@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-
 namespace fty {
 // This class is thread safe.
 

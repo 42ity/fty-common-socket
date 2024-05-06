@@ -18,15 +18,13 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
     =========================================================================
 */
+
 #pragma once
 
 //  Opaque class structures to allow forward references
 //  These classes are stable or legacy and built in all releases
 typedef struct _fty_common_socket_sync_client_t fty_common_socket_sync_client_t;
-#define FTY_COMMON_SOCKET_SYNC_CLIENT_T_DEFINED
 typedef struct _fty_common_socket_basic_mailbox_server_t fty_common_socket_basic_mailbox_server_t;
-#define FTY_COMMON_SOCKET_BASIC_MAILBOX_SERVER_T_DEFINED
-
 
 //  Public classes, each with its own header file
 #include "fty_common_socket_basic_mailbox_server.h"
