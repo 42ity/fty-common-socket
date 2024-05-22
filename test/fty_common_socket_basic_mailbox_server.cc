@@ -27,7 +27,7 @@
 
 TEST_CASE("Basic mailbox server")
 {
-    printf(" * fty_common_socket_basic_mailbox_server: ");
+    printf(" * fty_common_socket_basic_mailbox_server: \n");
 
     // normal case
     {
@@ -69,4 +69,6 @@ TEST_CASE("Basic mailbox server")
 
         agent.requestStop();
     }
+
+    printf(" * OK \n");
 }

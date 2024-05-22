@@ -25,6 +25,7 @@
 #include <vector>
 
 namespace fty {
+
 using Payload = std::vector<std::string>;
 
 // functions

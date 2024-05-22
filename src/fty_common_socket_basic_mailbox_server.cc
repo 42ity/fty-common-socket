@@ -52,9 +52,6 @@ SocketBasicServer::SocketBasicServer(fty::SyncServer& server, const std::string&
     m_pipe[0]      = -1;
     m_pipe[1]      = -1;
 
-    struct sockaddr_un name;
-    int                ret;
-
     /*
      * In case the program exited inadvertently on the last run,
      * remove the socket.
@@ -65,35 +62,31 @@ SocketBasicServer::SocketBasicServer(fty::SyncServer& server, const std::string&
     // Create unix socket.
 
     m_serverSocket = socket(AF_UNIX, SOCK_STREAM, PF_UNSPEC);
-
     if (m_serverSocket == -1) {
         throw std::runtime_error("Impossible to create unix socket");
     }
 
-
-    memset(&name, 0, sizeof(struct sockaddr_un));
+    struct sockaddr_un name;
+    memset(&name, 0, sizeof(name));
 
     // Bind socket to socket name.
 
     name.sun_family = AF_UNIX;
     strncpy(name.sun_path, m_path.c_str(), sizeof(name.sun_path) - 1);
 
-    ret = bind(m_serverSocket, reinterpret_cast<const struct sockaddr*>(&name), sizeof(struct sockaddr_un));
-
+    int ret = bind(m_serverSocket, reinterpret_cast<const struct sockaddr*>(&name), sizeof(struct sockaddr_un));
     if (ret == -1) {
         throw std::runtime_error("Impossible to bind the Unix socket");
     }
 
-    // change the right of the socket
+    // Change read/write privileges of the socket
     ret = chmod(m_path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-
     if (ret == -1) {
         throw std::runtime_error(
             "Impossible to change the rights of the Unix socket " + m_path + ": " + std::string(strerror(errno)));
     }
 
     // Prepare for accepting connections
-
     ret = listen(m_serverSocket, int(m_maxClient));
     if (ret == -1) {
         throw std::runtime_error("Impossible to listen on the Unix socket");
@@ -106,10 +99,9 @@ SocketBasicServer::SocketBasicServer(fty::SyncServer& server, const std::string&
 
 SocketBasicServer::~SocketBasicServer()
 {
-
-    close(m_serverSocket);
-    close(m_pipe[0]);
-    close(m_pipe[1]);
+    if (m_serverSocket != -1) { close(m_serverSocket); m_serverSocket = -1; }
+    if (m_pipe[0] != -1) { close(m_pipe[0]); m_pipe[0] = -1; }
+    if (m_pipe[1] != -1) { close(m_pipe[1]); m_pipe[1] = -1; }
 
     /* Unlink the socket. */
     unlink(m_path.c_str());
@@ -134,16 +126,16 @@ void SocketBasicServer::run()
         lastSocket = m_pipe[0];
     }
 
-    // infini loop for handling connection
-    for (;;) {
+    // infinite loop for handling connection
+    while (1) {
         fd_set tmpSockets = socketsSet;
 
         // Detect activity on the sockets
         if (select(lastSocket + 1, &tmpSockets, nullptr, nullptr, nullptr) == -1) {
             if (m_stopRequested) {
                 break;
-            } else {
-                // error case
+            }
+            else { // error case
                 continue;
             }
         }
@@ -162,16 +154,11 @@ void SocketBasicServer::run()
 
             if (socket == m_serverSocket) {
                 // A client is asking a new connection
-                socklen_t               addrlen;
                 struct sockaddr_storage clientaddr;
-                int                     newSocket;
-
-                // Handle a new connection
-                addrlen = sizeof(clientaddr);
+                socklen_t addrlen = sizeof(clientaddr);
                 memset(&clientaddr, 0, sizeof(clientaddr));
 
-                newSocket = accept(m_serverSocket, reinterpret_cast<struct sockaddr*>(&clientaddr), &addrlen);
-
+                int newSocket = accept(m_serverSocket, reinterpret_cast<struct sockaddr*>(&clientaddr), &addrlen);
                 if (newSocket != -1) {
                     // save the socket
                     FD_SET(newSocket, &socketsSet);
@@ -186,7 +173,6 @@ void SocketBasicServer::run()
                 }
             } else if (socket == m_pipe[0]) {
                 char c;
-
                 if (read(m_pipe[0], &c, 1) != 1) {
                     // error
                 }
@@ -196,14 +182,13 @@ void SocketBasicServer::run()
 
                     // get credential info
                     struct ucred cred;
-                    socklen_t    lenCredStruct = sizeof(struct ucred);
+                    socklen_t lenCredStruct = sizeof(cred);
 
                     if (getsockopt(socket, SOL_SOCKET, SO_PEERCRED, &cred, &lenCredStruct) == -1) {
                         throw std::runtime_error("Impossible to get sender");
                     }
 
-                    struct passwd* pws;
-                    pws = getpwuid(cred.uid);
+                    struct passwd* pws = getpwuid(cred.uid);
 
                     std::string sender(pws->pw_name);
 
@@ -283,66 +268,3 @@ void SocketBasicServer::requestStop()
 }
 
 } // namespace fty
-
-#if 0
-//  --------------------------------------------------------------------------
-//  Self test of this class
-
-
-#define SELFTEST_DIR_RO "src/selftest-ro"
-#define SELFTEST_DIR_RW "src/selftest-rw"
-
-
-#include "fty_common_socket_sync_client.h"
-#include "fty_common_unit_tests.h"
-#include <cassert>
-#include <thread>
-
-void fty_common_socket_basic_mailbox_server_test(bool verbose)
-{
-    printf(" * fty_common_socket_basic_mailbox_server: ");
-
-    // normal case
-    {
-        fty::EchoServer server;
-
-        fty::SocketBasicServer agent(server, "test.socket");
-
-
-        std::thread serverThread(&fty::SocketBasicServer::run, &agent);
-
-        // create a client
-        {
-            fty::SocketSyncClient syncClient("test.socket");
-
-            fty::Payload expectedPayload = {"This", "is", "a", "test"};
-
-            fty::Payload receivedPayload = syncClient.syncRequestWithReply(expectedPayload);
-
-            assert(expectedPayload == receivedPayload);
-        }
-
-        agent.requestStop();
-
-        serverThread.join();
-    }
-
-    // check destroy
-    {
-        fty::EchoServer server;
-
-        fty::SocketBasicServer agent(server, "test.socket");
-    }
-
-    // check destroy
-    {
-        fty::EchoServer server;
-
-        fty::SocketBasicServer agent(server, "test.socket");
-
-        agent.requestStop();
-    }
-
-    printf("Ok\n");
-}
-#endif

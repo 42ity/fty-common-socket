@@ -30,6 +30,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <unistd.h>
+#include <cstring> //memset
 
 namespace fty {
 
@@ -64,6 +65,7 @@ Payload recvFrames(int socket)
         if (!buffer) {
             throw std::runtime_error("Buffer allocation failed (" + std::to_string(frameSize + 1) + " bytes)");
         }
+        memset(buffer, 0, frameSize + 1);
         if (read(socket, buffer, frameSize) != frameSize) {
             if (buffer != localBuffer)
                 { free(buffer); }

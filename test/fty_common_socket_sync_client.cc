@@ -19,10 +19,19 @@
     =========================================================================
 */
 
-#include "fty_common_socket_sync_client.h"
 #include <catch2/catch.hpp>
+#include "fty_common_socket_sync_client.h"
 
 TEST_CASE("Sync client")
 {
-    fty::SocketSyncClient("/tmp/test.socket");
+    printf(" * fty_common_socket_sync_client: \n");
+
+    try {
+        fty::SocketSyncClient client("/tmp/test.socket");
+    }
+    catch (...) {
+        REQUIRE(false); // unexpected exception
+    }
+
+    printf(" * OK \n");
 }

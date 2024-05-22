@@ -50,12 +50,12 @@ private:
     // attributs
     fty::SyncServer& m_server;
     std::string      m_path;
-    size_t           m_maxClient;
-    int              m_serverSocket;
-    bool             m_stopRequested = false;
-    bool             m_running       = false;
+    size_t           m_maxClient{0};
+    int              m_serverSocket{-1};
+    int              m_pipe[2] = {-1, -1};
 
-    int m_pipe[2];
+    bool             m_stopRequested{false};
+    bool             m_running{false};
 };
 
 } // namespace fty
