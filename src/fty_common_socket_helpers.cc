@@ -31,6 +31,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <cstring> //memset
+#include <cstdint>
 
 namespace fty {
 
